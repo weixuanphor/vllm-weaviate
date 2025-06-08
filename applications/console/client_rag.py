@@ -46,7 +46,10 @@ class LLMClient:
         if enable_rag:
             try:
                 docs = self.weaviate_client.query_documents(query=query, class_name=class_name, top_k=TOP_K)
-                logging.info(f"Fetched documents: {docs}")
+                references = []
+                for d in docs:
+                    references.append(d["title"])
+                logging.info(f"{docs}")
             except Exception as e:
                 print(f"Warning: Failed to fetch documents: {e}")
 
@@ -64,6 +67,9 @@ class LLMClient:
         response = requests.post(API_URL, json=data)
         response.raise_for_status()
         answer = response.json()["choices"][0]["text"]
+
+        if references:
+            answer += f"\nReferences: {str(references)}\n"
         return answer
 
     def extract_answer(self, text: str) -> str:
