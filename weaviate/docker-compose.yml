@@ -1,0 +1,23 @@
+services:
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    # image: semitechnologies/weaviate:stable-v1.32-6e9b00f
+    restart: on-failure:0
+    ports:
+      - 8080:8080
+      - 50001:50001
+    volumes:
+      - ./data:/var/lib/weaviate
+    environment:
+      QUERY_DEFAULTS_LIMIT: 20
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      DEFAULT_VECTORIZER_MODULE: text2vec-transformers
+      ENABLE_MODULES: text2vec-transformers
+      TRANSFORMERS_INFERENCE_API: 'http://t2v-transformers:8080'
+      CLUSTER_HOSTNAME: 'node1'
+    
+  t2v-transformers:
+    image: cr.weaviate.io/semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
+    # image: semitechnologies/transformers-inference:baai-bge-base-en-v1.5-onnx
+    environment:
+      ENABLE_CUDA: 0
